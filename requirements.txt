@@ -1,0 +1,7 @@
+# Core — pdfplumber-based extraction (digital PDFs)
+pdfplumber>=0.11.0
+
+# OCR layer — scanned / image-only PDFs (Phase 1.5)
+pytesseract>=0.3.13   # Python wrapper for Tesseract 5 (Tesseract must be installed separately)
+pymupdf>=1.24.0       # PDF → image rendering (fitz); used by TesseractEngine
+Pillow>=10.0.0        # Image handling required by pytesseract
