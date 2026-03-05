@@ -734,13 +734,13 @@ MGICTaxInsight/
 **Goal**: Support partnership and S-Corporation returns (requires custom models or LLM).
 
 **Tasks**:
-- [ ] Add `K-1 (Form 1065)` to registry + dedicated parser (Boxes 1–14)
+- [x] Add `K-1 (Form 1065)` to registry + dedicated parser (Boxes 1–23, pdfplumber)
 - [ ] Add `Form 1065` to registry + dedicated parser (Lines 1–22)
-- [ ] Add `K-1 (Form 1120-S)` to registry + dedicated parser (Boxes 1–17)
+- [x] Add `K-1 (Form 1120-S)` to registry + dedicated parser (Boxes 1–17, pdfplumber)
 - [ ] Add `Form 1120-S` to registry + dedicated parser (Lines 1–21)
 - [ ] Implement `AzureDICustomStrategy` (custom-trained Azure DI models for K-1, 1065, 1120-S)
 - [ ] Implement `LlmExtractionStrategy` (Claude / GPT structured tool call fallback)
-- [ ] Add `ownership_percentage` field to K-1 form schemas
+- [x] Add `ownership_percentage` field to K-1 form schemas
 
 ### Phase 4 — Scanned PDF Support
 

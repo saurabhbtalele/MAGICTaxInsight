@@ -33,6 +33,21 @@ _DEDICATED_PARSERS: dict[str, tuple[str, str, str]] = {
         "extract_1040_from_pdf",
         "extract_1040_from_text",
     ),
+    "K-1 (1065)": (
+        "src.parsers.k1_1065_parser",
+        "extract_k1_1065_from_pdf",
+        "extract_k1_1065_from_text",
+    ),
+    "Schedule K (1065)": (
+        "src.parsers.k1_1065_parser",
+        "extract_k1_1065_from_pdf",
+        "extract_k1_1065_from_text",
+    ),
+    "K-1 (1120-S)": (
+        "src.parsers.k1_1120s_parser",
+        "extract_k1_1120s_from_pdf",
+        "extract_k1_1120s_from_text",
+    ),
 }
 
 
