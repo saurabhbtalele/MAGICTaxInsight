@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    image: magic-tax-insight
+    container_name: magic-tax-insight
+    volumes:
+      # Mount local samples and output directories so files persist and are easily accessible
+      - ./samples:/app/samples
+      - ./blankSamples:/app/blankSamples
+      - ./output:/app/output
+    # When running via `docker-compose run app`, pass args like:
+    # docker-compose run --rm app samples/document.pdf

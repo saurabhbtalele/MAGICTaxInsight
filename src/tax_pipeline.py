@@ -24,6 +24,7 @@ from src.forms.detector import detect_forms
 from src.forms.extractor import extract_forms
 from src.models.document import ExtractedForm, ParsedDocument, ParsedPage
 from src.utils import DocumentClassification, classify_pdf_pages
+from src.utils.logger import log
 
 
 def _build_document_digital(pdf_path: Path) -> tuple[ParsedDocument, str]:
@@ -96,7 +97,7 @@ def _build_document(pdf_path: Path) -> tuple[ParsedDocument, str]:
     classification: DocumentClassification = classify_pdf_pages(pdf_path)
 
     if classification.is_scanned_document:
-        print(
+        log.info(
             f"[pipeline] All {classification.total_pages} page(s) in "
             f"'{Path(pdf_path).name}' appear to be image-based. "
             "Routing to Tesseract OCR..."
@@ -117,7 +118,7 @@ def _build_document(pdf_path: Path) -> tuple[ParsedDocument, str]:
 
     if tier == "tesseract_ocr":
         total_chars = sum(len(p.raw_text) for p in document.pages)
-        print(
+        log.success(
             f"[pipeline] OCR complete — extracted {total_chars} characters "
             f"across {document.total_pages} page(s)."
         )

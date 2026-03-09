@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterable
 from src.forms.registry import FormFieldDefinition, FormSchema, get_form_schema
 from src.models.document import ParsedDocument
 from src.strategies.base import IExtractionStrategy
+from src.utils.logger import log
 
 
 # Maps form_id → (module, pdf_function, text_function)
@@ -47,6 +48,51 @@ _DEDICATED_PARSERS: dict[str, tuple[str, str, str]] = {
         "src.parsers.k1_1120s_parser",
         "extract_k1_1120s_from_pdf",
         "extract_k1_1120s_from_text",
+    ),
+    "1099-MISC": (
+        "src.parsers.form1099misc_parser",
+        "extract_1099misc_from_pdf",
+        "extract_1099misc_from_text",
+    ),
+    "Schedule B (1040)": (
+        "src.parsers.schedule_b_1040_parser",
+        "extract_schedule_b_from_pdf",
+        "extract_schedule_b_from_text",
+    ),
+    "Schedule C (1040)": (
+        "src.parsers.schedule_c_1040_parser",
+        "extract_schedule_c_from_pdf",
+        "extract_schedule_c_from_text",
+    ),
+    "Schedule D (1040)": (
+        "src.parsers.schedule_d_1040_parser",
+        "extract_schedule_d_from_pdf",
+        "extract_schedule_d_from_text",
+    ),
+    "Schedule E (1040)": (
+        "src.parsers.schedule_e_1040_parser",
+        "extract_schedule_e_from_pdf",
+        "extract_schedule_e_from_text",
+    ),
+    "Schedule F (1040)": (
+        "src.parsers.schedule_f_1040_parser",
+        "extract_schedule_f_from_pdf",
+        "extract_schedule_f_from_text",
+    ),
+    "1065": (
+        "src.parsers.form1065_parser",
+        "extract_1065_from_pdf",
+        "extract_1065_from_text",
+    ),
+    "1120-S": (
+        "src.parsers.form1120s_parser",
+        "extract_1120s_from_pdf",
+        "extract_1120s_from_text",
+    ),
+    "1120": (
+        "src.parsers.form1120_parser",
+        "extract_1120_from_pdf",
+        "extract_1120_from_text",
     ),
 }
 
@@ -152,7 +198,8 @@ class LocalExtractionStrategy(IExtractionStrategy):
                 self._last_tier_name = "pdfplumber"
                 return getattr(mod, pdf_fn)(source_path)
 
-        except Exception:
+        except Exception as e:
+            log.warning(f"Local strategy parser failed for {schema.form_id}: {e}")
             # Fall back to generic regex extraction on any parser error.
             pass
 

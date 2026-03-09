@@ -15,9 +15,19 @@ class DetectedForm:
     confidence: float
 
 
+import re
+
 def _page_matches_schema(page_text: str, schema: FormSchema) -> bool:
-    lower = page_text.lower()
-    return any(pattern.lower() in lower for pattern in schema.detection_patterns)
+    """Check if page text matches any of the schema's patterns (supports regex)."""
+    text = page_text.lower()
+    for pattern in schema.detection_patterns:
+        # If it looks like a regex form (e.g. contains \b or ^), use re.search
+        if "\\" in pattern or "^" in pattern or "$" in pattern:
+             if re.search(pattern.lower(), text, re.IGNORECASE):
+                 return True
+        elif pattern.lower() in text:
+            return True
+    return False
 
 
 def detect_forms(document: ParsedDocument) -> List[DetectedForm]:
@@ -53,7 +63,10 @@ def detect_forms(document: ParsedDocument) -> List[DetectedForm]:
             (["1099nec", "1099-nec", "nec"],  "1099-NEC"),
             (["1099r", "1099-r"],  "1099-R"),
             (["1040"],             "1040"),
-            (["schc", "schedule-c", "schedule_c"], "Schedule C"),
+            (["schc", "schedule-c", "schedule_c"], "Schedule C (1040)"),
+            (["1120s", "1120-s"],   "1120-S"),
+            (["1120", "f1120"],     "1120"),
+            (["k1-1120s", "k1s"],   "K-1 (1120-S)"),
         ]
         for keywords, form_id in _filename_hints:
             if any(kw in filename_lower for kw in keywords):

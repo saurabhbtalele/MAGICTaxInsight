@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from src.tax_pipeline import process_tax_package
+from src.utils.logger import log
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -30,12 +31,17 @@ def main() -> int:
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
-    result = process_tax_package(args.pdf)
-    with open(args.output, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, indent=2)
+    log.info(f"Starting processing for file: {args.pdf}")
+    try:
+        result = process_tax_package(args.pdf)
+        with open(args.output, "w", encoding="utf-8") as f:
+            json.dump(result, f, ensure_ascii=False, indent=2)
 
-    print(f"Tax PoC result written to: {args.output.resolve()}")
-    return 0
+        log.success(f"Successfully processed! Tax PoC result written to: {args.output.resolve()}")
+        return 0
+    except Exception as e:
+        log.exception(f"A critical error occurred while processing {args.pdf}")
+        return 1
 
 
 if __name__ == "__main__":

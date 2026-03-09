@@ -64,10 +64,10 @@ def _1099r_rows(form: ExtractedForm) -> List[MgicRow]:
 
 def _schedule_c_rows(form: ExtractedForm) -> List[MgicRow]:
     return [
-        MgicRow("SC_01", "Sched C Line 1  — Gross receipts",                   "Schedule C", _f(form, "gross_receipts_line_1")),
-        MgicRow("SC_07", "Sched C Line 7  — Gross income",                     "Schedule C", _f(form, "gross_income_line_7")),
-        MgicRow("SC_28", "Sched C Line 28 — Total expenses",                   "Schedule C", _f(form, "total_expenses_line_28")),
-        MgicRow("SC_31", "Sched C Line 31 — Net profit (loss)",                "Schedule C", _f(form, "net_profit_or_loss_line_31")),
+        MgicRow("SC_01", "Sched C Line 1  — Gross receipts",                   "Schedule C (1040)", _f(form, "gross_receipts_line_1")),
+        MgicRow("SC_07", "Sched C Line 7  — Gross income",                     "Schedule C (1040)", _f(form, "gross_income_line_7")),
+        MgicRow("SC_28", "Sched C Line 28 — Total expenses",                   "Schedule C (1040)", _f(form, "total_expenses_line_28")),
+        MgicRow("SC_31", "Sched C Line 31 — Net profit (loss)",                "Schedule C (1040)", _f(form, "net_profit_or_loss_line_31")),
     ]
 
 
@@ -87,7 +87,7 @@ _FORM_HANDLERS = {
     "W-2":        _w2_rows,
     "1099-NEC":   _nec_rows,
     "1099-R":     _1099r_rows,
-    "Schedule C": _schedule_c_rows,
+    "Schedule C (1040)": _schedule_c_rows,
     "1040":       _form1040_rows,
 }
 

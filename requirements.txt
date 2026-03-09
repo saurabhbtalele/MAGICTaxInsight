@@ -5,3 +5,18 @@ pdfplumber>=0.11.0
 pytesseract>=0.3.13   # Python wrapper for Tesseract 5 (Tesseract must be installed separately)
 pymupdf>=1.24.0       # PDF → image rendering (fitz); used by TesseractEngine
 Pillow>=10.0.0        # Image handling required by pytesseract
+
+# Best in class logging (Colorized terminal + JSON file rotation)
+loguru>=0.7.2
+
+# Document Intelligence — Docling (IBM Research)
+# AI-powered table extraction (TableFormer) + layout analysis (DocLayNet)
+docling>=2.0.0
+onnxruntime>=1.17.0     # Required by Docling's OCR/layout models at runtime
+
+# LLM fallback — Gemini (optional: for Tier 2 extraction)
+google-genai>=1.0.0
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.24.0
