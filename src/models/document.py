@@ -42,7 +42,7 @@ class ExtractedForm:
     page_numbers: list[int]
     fields: dict[str, Any]
     confidence: float
-    tax_year: str | None = None
+    tax_year: int | None = None
     instance_index: int = 0
     extraction_tier_used: str | None = None
 

@@ -6,6 +6,7 @@ from typing import Any, Dict, Iterable
 
 from src.forms.registry import FormFieldDefinition, FormSchema, get_form_schema
 from src.models.document import ParsedDocument
+from src.parsers.base_parser import get_form_parser
 from src.strategies.base import IExtractionStrategy
 from src.utils.logger import log
 
@@ -84,11 +85,7 @@ _DEDICATED_PARSERS: dict[str, tuple[str, str, str]] = {
         "extract_1065_from_pdf",
         "extract_1065_from_text",
     ),
-    "1120-S": (
-        "src.parsers.form1120s_parser",
-        "extract_1120s_from_pdf",
-        "extract_1120s_from_text",
-    ),
+    "1120-S": None,  # Migrated to parser registry — see src/parsers/f1120s/
     "1120": (
         "src.parsers.form1120_parser",
         "extract_1120_from_pdf",
@@ -171,12 +168,26 @@ class LocalExtractionStrategy(IExtractionStrategy):
         form_id: str,
         document: ParsedDocument,
         page_numbers: list[int],
+        tax_year: int | None = None,
     ) -> dict[str, Any]:
         schema = get_form_schema(form_id)
         if not schema:
             self._last_tier_name = "generic_regex"
             return {}
 
+        # --- NEW: check the parser registry first ---
+        year_int = int(tax_year) if tax_year else None
+        parser_cls = get_form_parser(form_id, year_int)
+        if parser_cls is not None:
+            try:
+                parser_instance = parser_cls()
+                self._last_tier_name = "pdfplumber"
+                return parser_instance.extract(document, page_numbers)
+            except Exception as e:
+                log.warning(f"Registry parser failed for {form_id}/{tax_year}: {e}")
+                # fall through to legacy / generic
+
+        # --- LEGACY: hardcoded parser dict for forms not yet migrated ---
         entry = _DEDICATED_PARSERS.get(schema.form_id)
         if not entry:
             self._last_tier_name = "generic_regex"
@@ -200,9 +211,7 @@ class LocalExtractionStrategy(IExtractionStrategy):
 
         except Exception as e:
             log.warning(f"Local strategy parser failed for {schema.form_id}: {e}")
-            # Fall back to generic regex extraction on any parser error.
             pass
 
         self._last_tier_name = "generic_regex"
         return _generic_extract(document, schema, page_numbers)
-

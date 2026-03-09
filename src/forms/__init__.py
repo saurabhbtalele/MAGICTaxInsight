@@ -1,9 +1,12 @@
-from .registry import FORM_REGISTRY, FormFieldDefinition, FormSchema
+import src.forms.schemas # Ensure schemas are loaded
+import src.parsers       # Ensure parsers are loaded
+from .registry import FormFieldDefinition, FormSchema, all_form_schemas, get_form_schema
 from .detector import DetectedForm, detect_forms
 from .extractor import extract_forms
 
 __all__ = [
-    "FORM_REGISTRY",
+    "all_form_schemas",
+    "get_form_schema",
     "FormFieldDefinition",
     "FormSchema",
     "DetectedForm",

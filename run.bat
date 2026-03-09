@@ -32,14 +32,29 @@ goto end
 
 :run
 if "%2"=="" (
-    echo Usage: .\run.bat run [path/to/pdf]
-    echo Example: .\run.bat run samples/document.pdf
+    echo Usage: .\run.bat run [path/to/pdf] [extra_args]
+    echo Example: .\run.bat run samples/document.pdf -o output/custom.json
     echo.
     echo Running with default: samples/document.pdf
     docker-compose run --rm app samples/document.pdf
-) else (
-    docker-compose run --rm app %2
+    goto end
 )
+
+REM Capture all arguments after the first one ("run")
+set "EXTRA_ARGS="
+shift
+:args_loop
+if "%~1"=="" goto args_done
+if defined EXTRA_ARGS (
+    set "EXTRA_ARGS=%EXTRA_ARGS% %1"
+) else (
+    set "EXTRA_ARGS=%1"
+)
+shift
+goto args_loop
+
+:args_done
+docker-compose run --rm app %EXTRA_ARGS%
 goto end
 
 :batch

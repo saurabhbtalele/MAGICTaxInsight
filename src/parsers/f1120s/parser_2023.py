@@ -330,22 +330,34 @@ def _extract_1120s_elements(elements: list[dict[str, Any]]) -> dict[str, Any]:
         "sch_m2_balance_end_line_8_col_d": None,
     }
 
+from typing import List, Dict
+from src.parsers.base_parser import IFormParser, register_parser
+from src.models.document import ParsedDocument
 
-def extract_1120s_from_text(text: str) -> dict[str, Any]:
-    """Fallback - not used in coord mode."""
-    return {}
+@register_parser(form_id="1120-S", year=2023)
+class Form1120SParser2023(IFormParser):
+    
+    def extract(self, document: ParsedDocument, page_numbers: List[int]) -> Dict[str, Any]:
+        """Main entry point: extracts Form 1120-S fields using element coordinates."""
+        try:
+            import pdfplumber
+        except ImportError as exc:
+            raise RuntimeError("pdfplumber required") from exc
+            
+        source_path = (document.metadata or {}).get("source_path")
+        if not source_path:
+            return {}
 
+        all_elements = []
+        with pdfplumber.open(str(source_path)) as pdf:
+            # We filter pages based on the page numbers passed
+            # page_numbers is 1-indexed, pdfplumber's pages is 0-indexed
+            pages_to_process = []
+            for p_num in page_numbers:
+                if 1 <= p_num <= len(pdf.pages):
+                    pages_to_process.append(pdf.pages[p_num - 1])
+                
+            for page in pages_to_process:
+                all_elements.extend(extract_interleaved_elements(page))
 
-def extract_1120s_from_pdf(pdf_path: str | Path) -> dict[str, Any]:
-    """Main entry point: extracts Form 1120-S fields using element coordinates."""
-    try:
-        import pdfplumber
-    except ImportError as exc:
-        raise RuntimeError("pdfplumber required") from exc
-
-    all_elements = []
-    with pdfplumber.open(str(pdf_path)) as pdf:
-        for page in pdf.pages:
-            all_elements.extend(extract_interleaved_elements(page))
-
-    return _extract_1120s_elements(all_elements)
+        return _extract_1120s_elements(all_elements)

@@ -17,8 +17,8 @@ class IExtractionStrategy(Protocol):
         form_id: str,
         document: ParsedDocument,
         page_numbers: list[int],
+        tax_year: int | None = None,
     ) -> dict[str, Any]:
         """Extract all fields for a detected form."""
 
         ...
-

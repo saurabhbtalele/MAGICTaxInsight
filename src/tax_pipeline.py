@@ -154,6 +154,7 @@ def process_tax_package(pdf_path: str | Path) -> Dict[str, Any]:
             page_numbers=d["page_numbers"],
             fields=d["fields"],
             confidence=d["confidence"],
+            tax_year=d.get("tax_year"),
             extraction_tier_used=d.get("extraction_tier_used", tier),
         )
         for d in extracted_dicts

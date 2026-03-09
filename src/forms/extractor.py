@@ -71,6 +71,7 @@ def extract_form_fields(
     document: ParsedDocument,
     schema: FormSchema,
     page_numbers: Iterable[int],
+    tax_year: int | None = None,
 ) -> tuple[Dict[str, Any], str]:
     """Extract all fields for one form via the 3-tier strategy cascade.
 
@@ -91,7 +92,7 @@ def extract_form_fields(
 
     # ------- PDFPLUMBER only ----------------------------------------------
     if schema.extraction_tier == ExtractionTier.PDFPLUMBER:
-        local_fields = _local_strategy.extract(schema.form_id, document, pages)
+        local_fields = _local_strategy.extract(schema.form_id, document, pages, tax_year=tax_year)
         return local_fields, _local_strategy.tier_name
 
     # ------- Tier 1: Docling ----------------------------------------------
@@ -130,7 +131,7 @@ def extract_form_fields(
 
     # ------- Tier 3: Local (pdfplumber / regex) ---------------------------
     # Fallback to local if Docling/LLM failed or returned low confidence
-    local_fields = _local_strategy.extract(schema.form_id, document, pages)
+    local_fields = _local_strategy.extract(schema.form_id, document, pages, tax_year=tax_year)
     return local_fields, _local_strategy.tier_name
 
 
@@ -144,16 +145,21 @@ def extract_forms(
         schema = get_form_schema(detected.form_id)
         if not schema:
             continue
+
+        tax_year = getattr(detected, 'tax_year', None)
+
         fields, tier_name = extract_form_fields(
             document,
             schema,
             detected.page_numbers,
+            tax_year=tax_year,
         )
         extracted.append({
             "form_id": detected.form_id,
             "display_name": detected.display_name,
             "page_numbers": detected.page_numbers,
             "confidence": detected.confidence,
+            "tax_year": tax_year,
             "fields": fields,
             "extraction_tier_used": tier_name,
         })

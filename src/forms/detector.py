@@ -13,9 +13,23 @@ class DetectedForm:
     display_name: str
     page_numbers: List[int]
     confidence: float
+    tax_year: int | None = None
 
 
 import re
+
+# Regex to find a 4-digit tax year (2018-2029) near the top of a page
+_YEAR_RE = re.compile(r'\b(20(?:1[89]|2[0-9]))\b')
+
+def _detect_tax_year(page_texts: list[str]) -> int | None:
+    """Scan the top portion of matched pages to find the tax year."""
+    for text in page_texts:
+        # Only scan top ~30% of the text (header area of IRS forms)
+        top_portion = text[:max(len(text) // 3, 200)]
+        m = _YEAR_RE.search(top_portion)
+        if m:
+            return int(m.group(1))
+    return None
 
 def _page_matches_schema(page_text: str, schema: FormSchema) -> bool:
     """Check if page text matches any of the schema's patterns (supports regex)."""
@@ -53,6 +67,7 @@ def detect_forms(document: ParsedDocument) -> List[DetectedForm]:
                         display_name=schema.display_name,
                         page_numbers=[page.page_number],
                         confidence=80.0,
+                        tax_year=None,  # Will be resolved after loop
                     )
 
     # Filename heuristics: if text detection found nothing, guess from filename.
@@ -80,5 +95,11 @@ def detect_forms(document: ParsedDocument) -> List[DetectedForm]:
                     )
                 break
 
-    return list(detected.values())
+    # Resolve tax_year for each detected form
+    for det in detected.values():
+        page_texts = [
+            p.full_text for p in document.pages if p.page_number in det.page_numbers
+        ]
+        det.tax_year = _detect_tax_year(page_texts)
 
+    return list(detected.values())
